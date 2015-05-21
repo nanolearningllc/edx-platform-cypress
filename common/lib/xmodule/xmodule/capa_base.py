@@ -1417,6 +1417,13 @@ class CapaMixin(CapaFields):
             }
 
         self.lcp.student_answers = answers
+        answer_keys = [key for key in answers]
+        for answer_key in answer_keys:
+            # Reset the correctness property to default(None) state when attempted wrong
+            if self.lcp.correct_map.get_property(answer_key, 'correctness', None) == 'incorrect':
+                self.lcp.correct_map.set_property(answer_key, 'correctness', None)
+                # For problems with hints and feedback, we need to reset msg property to default state
+                self.lcp.correct_map.set_property(answer_key, 'msg', '')
 
         self.set_state_from_lcp()
 
