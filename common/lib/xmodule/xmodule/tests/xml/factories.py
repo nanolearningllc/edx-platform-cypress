@@ -59,12 +59,15 @@ class XmlImportData(object):
 XML_IMPORT_ARGS = inspect.getargspec(XmlImportData.__init__).args
 
 
+# Factories are self documenting
+# pylint: disable=missing-docstring
 class XmlImportFactory(Factory):
     """
     Factory for generating XmlImportData's, which can hold all the data needed
     to run an XModule XML import
     """
-    FACTORY_FOR = XmlImportData
+    class Meta(object):
+        model = XmlImportData
 
     filesystem = MemoryFS()
     xblock_mixins = (InheritanceMixin, XModuleMixin)

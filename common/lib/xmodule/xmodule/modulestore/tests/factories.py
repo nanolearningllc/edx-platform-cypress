@@ -66,6 +66,8 @@ class XModuleFactoryLock(threading.local):
 XMODULE_FACTORY_LOCK = XModuleFactoryLock()
 
 
+# Factories are self documenting
+# pylint: disable=missing-docstring
 class XModuleFactory(Factory):
     """
     Factory for XModules
@@ -74,7 +76,8 @@ class XModuleFactory(Factory):
     # We have to give a Factory a FACTORY_FOR.
     # However, the class that we create is actually determined by the category
     # specified in the factory
-    FACTORY_FOR = Dummy
+    class Meta(object):
+        model = Dummy
 
     @lazy_attribute
     def modulestore(self):

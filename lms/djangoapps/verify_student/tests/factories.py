@@ -6,10 +6,13 @@ from factory.django import DjangoModelFactory
 from verify_student.models import SoftwareSecurePhotoVerification
 
 
+# Factories are self documenting
+# pylint: disable=missing-docstring
 class SoftwareSecurePhotoVerificationFactory(DjangoModelFactory):
     """
     Factory for SoftwareSecurePhotoVerification
     """
-    FACTORY_FOR = SoftwareSecurePhotoVerification
+    class Meta(object):
+        model = SoftwareSecurePhotoVerification
 
     status = 'approved'

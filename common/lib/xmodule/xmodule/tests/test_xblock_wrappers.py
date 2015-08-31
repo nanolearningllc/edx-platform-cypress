@@ -97,6 +97,8 @@ def flatten(class_dict):
             yield (cls, fields)
 
 
+# Factories are self documenting
+# pylint: disable=missing-docstring
 @use_strategy(BUILD_STRATEGY)
 class ModuleSystemFactory(Factory):
     """
@@ -104,7 +106,8 @@ class ModuleSystemFactory(Factory):
     performed by :func:`xmodule.tests.get_test_system`, so
     arguments for that function are valid factory attributes.
     """
-    FACTORY_FOR = ModuleSystem
+    class Meta(object):
+        model = ModuleSystem
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):  # pylint: disable=unused-argument
@@ -119,7 +122,8 @@ class DescriptorSystemFactory(Factory):
     performed by :func:`xmodule.tests.get_test_descriptor_system`, so
     arguments for that function are valid factory attributes.
     """
-    FACTORY_FOR = DescriptorSystem
+    class Meta(object):
+        model = DescriptorSystem
 
     @classmethod
     def _build(cls, target_class, *args, **kwargs):  # pylint: disable=unused-argument
@@ -190,7 +194,8 @@ class LeafDescriptorFactory(Factory):
     """
     # pylint: disable=missing-docstring
 
-    FACTORY_FOR = XModuleDescriptor
+    class Meta(object):
+        model = XModuleDescriptor
 
     runtime = SubFactory(DescriptorSystemFactory)
     url_name = LazyAttributeSequence('{.block_type}_{}'.format)
