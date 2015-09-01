@@ -51,6 +51,14 @@ class BlockStructure(object):
             predicate=predicate,
         )
 
+    def post_order_traversal(self, get_result=None, predicate=None):
+        return traverse_post_order(
+            start_node=self.root_block_key,
+            get_children=self.get_children,
+            get_result=get_result,
+            predicate=predicate,
+        )
+
     def prune(self):
         # create a new block relations map with only those blocks that are still linked
         pruned_block_relations = defaultdict(self.BlockRelations)
@@ -72,12 +80,7 @@ class BlockStructure(object):
                     if child in pruned_block_relations:
                         self._add_relation(pruned_block_relations, block_key, child)
 
-        list(traverse_post_order(
-            start_node=self.root_block_key,
-            get_children=self.get_children,
-            get_result=do_for_each_block
-        ))
-
+        list(self.post_order_traversal(get_result=do_for_each_block))
         self._block_relations = pruned_block_relations
 
     @classmethod
@@ -118,6 +121,9 @@ class BlockStructureBlockData(BlockStructure):
     def get_transformer_data(self, transformer, key, default=None):
         return self._transformer_data.get(transformer.name(), {}).get(key, default)
 
+    def set_transformer_data(self, transformer, key, value):
+        self._transformer_data[transformer.name()][key] = value
+
     def get_transformer_data_version(self, transformer):
         return self.get_transformer_data(transformer, TRANSFORMER_VERSION_KEY, 0)
 
@@ -126,6 +132,9 @@ class BlockStructureBlockData(BlockStructure):
         return block_data._transformer_data.get(
             transformer.name(), {}
         ).get(key, default) if block_data else default
+
+    def set_transformer_block_data(self, usage_key, transformer, key, value):
+        self._block_data_map[usage_key]._transformer_data[transformer.name()][key] = value
 
     def remove_block(self, usage_key):
         # Remove block from its children.
@@ -186,12 +195,6 @@ class BlockStructureCollectedData(BlockStructureBlockData):
         if transformer.VERSION == 0:
             raise Exception('VERSION attribute is not set on transformer {0}.', transformer.name())
         self.set_transformer_data(transformer, TRANSFORMER_VERSION_KEY, transformer.VERSION)
-
-    def set_transformer_data(self, transformer, key, value):
-        self._transformer_data[transformer.name()][key] = value
-
-    def set_transformer_block_data(self, usage_key, transformer, key, value):
-        self._block_data_map[usage_key]._transformer_data[transformer.name()][key] = value
 
 
 class BlockStructureFactory(object):
