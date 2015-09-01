@@ -124,6 +124,7 @@ body.discussion, .discussion-module {
   background-color: $white;
 }
 
+// answered questions - collapsed comment area
 body.discussion, .discussion-thread.expanded {
   .forum-thread-main-wrapper {
     box-shadow: 0 1px 3px $shadow;
