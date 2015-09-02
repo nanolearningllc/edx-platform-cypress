@@ -7,7 +7,7 @@
   .responses {
     list-style: none;
     margin-top: $baseline;
-    padding: 0px ($baseline*2);
+    padding: 0 ($baseline*1.5);
 
     &:empty {
       display: none;
@@ -16,7 +16,7 @@
     .forum-response {
       @include animation(fadeIn .3s);
       position: relative;
-      margin: 0 -($baseline/2) ($baseline*1.5);
+      margin: $baseline 0;
       border: 1px solid $gray-l2;
       border-radius: 3px;
       box-shadow: 0 0 1px $shadow;
