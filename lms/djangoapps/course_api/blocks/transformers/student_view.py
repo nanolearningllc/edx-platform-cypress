@@ -9,6 +9,9 @@ class StudentViewTransformer(BlockStructureTransformer):
     STUDENT_VIEW_DATA = 'student_view_data'
     STUDENT_VIEW_MULTI_DEVICE = 'student_view_multi_device'
 
+    def __init__(self, requested_student_view_data):
+        self.requested_student_view_data = requested_student_view_data
+
     @classmethod
     def collect(cls, block_structure):
         """
@@ -34,4 +37,6 @@ class StudentViewTransformer(BlockStructureTransformer):
         """
         Mutates block_structure based on the given user_info.
         """
-        pass
+        for block_key in block_structure.post_order_traversal():
+            if block_structure.get_xblock_field(block_key, 'type') not in self.requested_student_view_data:
+                block_structure.remove_transformer_block_data(block_key, self, self.STUDENT_VIEW_DATA)

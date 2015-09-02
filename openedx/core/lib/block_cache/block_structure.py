@@ -27,6 +27,9 @@ class BlockStructure(object):
         self._block_relations = defaultdict(self.BlockRelations)
         self._add_block(self._block_relations, root_block_key)
 
+    def __iter__(self):
+        return self.topological_traversal
+
     def add_relation(self, parent_key, child_key):
         self._add_relation(self._block_relations, parent_key, child_key)
 
@@ -135,6 +138,9 @@ class BlockStructureBlockData(BlockStructure):
 
     def set_transformer_block_data(self, usage_key, transformer, key, value):
         self._block_data_map[usage_key]._transformer_data[transformer.name()][key] = value
+
+    def remove_transformer_block_data(self, usage_key, transformer, key):
+        del self._block_data_map[usage_key]._transformer_data[transformer.name()][key]
 
     def remove_block(self, usage_key):
         # Remove block from its children.

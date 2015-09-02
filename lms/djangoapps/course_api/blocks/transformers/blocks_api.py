@@ -3,7 +3,7 @@ from course_api.blocks.transformers.block_counts import BlockCountsTransformer
 from course_api.blocks.transformers.student_view import StudentViewTransformer
 
 
-class CourseAPITransformer(BlockStructureTransformer):
+class BlocksAPITransformer(BlockStructureTransformer):
     """
     ...
     """
@@ -11,8 +11,9 @@ class CourseAPITransformer(BlockStructureTransformer):
     STUDENT_VIEW_DATA = 'student_view_data'
     STUDENT_VIEW_MULTI_DEVICE = 'student_view_multi_device'
 
-    def __init__(self, block_counts):
+    def __init__(self, block_counts, requested_student_view_data):
         self.block_counts = block_counts
+        self.requested_student_view_data = requested_student_view_data
 
     @classmethod
     def collect(cls, block_structure):
@@ -33,5 +34,5 @@ class CourseAPITransformer(BlockStructureTransformer):
         """
         Mutates block_structure based on the given user_info.
         """
-        StudentViewTransformer().transform(user_info, block_structure)
+        StudentViewTransformer(self.requested_student_view_data).transform(user_info, block_structure)
         BlockCountsTransformer(self.block_counts).transform(user_info, block_structure)

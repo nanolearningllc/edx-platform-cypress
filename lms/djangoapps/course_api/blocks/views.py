@@ -1,12 +1,15 @@
+from django.core.exceptions import ValidationError
 from rest_framework.generics import ListAPIView
-from rest_framework.exceptions import AuthenticationFailed, ParseError
+from rest_framework.response import Response
 
 from lms.djangoapps.course_blocks.api import get_course_blocks, LMS_COURSE_TRANSFORMERS
 from opaque_keys.edx.keys import UsageKey
 from openedx.core.lib.api.view_utils import view_auth_classes
 from xmodule.modulestore.django import modulestore
 
-from transformers.course_api import CourseAPITransformer
+from transformers.blocks_api import BlocksAPITransformer
+from .forms import BlockListGetForm
+from .serializers import BlockSerializer
 
 
 # TODO
@@ -43,12 +46,12 @@ class CourseBlocks(ListAPIView):
           Example: block_counts=video,problem
 
         * fields: (list) Indicates which additional fields to return for each block.
-          Default is children,graded,format,multi_device
+          Default is children,graded,format,student_view_multi_device
 
-          Example: fields=graded,format,multi_device
+          Example: fields=graded,format,student_view_multi_device
 
-        * depth (integer) Indicates how deep to traverse into the blocks hierarchy. A value of all means the entire
-          hierarchy.
+        * depth (integer or all) Indicates how deep to traverse into the blocks hierarchy.
+          A value of all means the entire hierarchy.
           Default is 0
 
           Example: depth=all
@@ -103,8 +106,6 @@ class CourseBlocks(ListAPIView):
             are not supported.
 
     """
-    DEFAULT_FIELDS = "children,graded,format,multi_device"
-
     def list(self, request, usage_key_string):
         """
         REST API endpoint for listing all the blocks and/or navigation information in the course,
@@ -118,54 +119,30 @@ class CourseBlocks(ListAPIView):
         usage_key = usage_key.replace(course_key=modulestore().fill_in_run(usage_key.course_key))
         course_key = usage_key.course_key
 
-        def get_param_value_as_list(param_name, default_param_value=""):
-            param_value = request.GET.get(param_name, default_param_value)
-            return param_value.split(",") if param_value else []
+        params = BlockListGetForm(request.GET, initial={'request': request})
+        if not params.is_valid():
+            raise ValidationError(params.errors)
 
-        course_api_transformer = CourseAPITransformer(
-            get_param_value_as_list('fields', self.DEFAULT_FIELDS),
-            get_param_value_as_list('block_counts'),
-            get_param_value_as_list('student_view_data'),
+        blocks_api_transformer = BlocksAPITransformer(
+            params.cleaned_data['block_counts'],
+            params.cleaned_data['student_view_data']
         )
         blocks = get_course_blocks(
             request.user,
             course_key,
             usage_key,
-            transformers=LMS_COURSE_TRANSFORMERS+course_api_transformer,
+            transformers=LMS_COURSE_TRANSFORMERS + blocks_api_transformer,
         )
-        course_api_transformer.
 
-
-        # return response
-        response = {"root": unicode(start_block.location)}
-        result_data.update_response(response, return_blocks, return_nav)
-        return Response(response)
-
-
-    def perform_authentication(self, request):
-        """
-        Ensures that the user is authenticated (e.g. not an AnonymousUser)
-        """
-        super(CourseBlocks, self).perform_authentication(request)
-        if request.user.is_anonymous():
-            raise AuthenticationFailed
-
-
-
-
-            # the block's data to include in the response
-            self.value = {
-                "id": unicode(block.location),
-                "type": self.type,
-                "display_name": block.display_name,
-                "web_url": reverse(
-                    "jump_to",
-                    kwargs={"course_id": unicode(request_info.course.id), "location": unicode(block.location)},
-                    request=request_info.request,
-                ),
-                "block_url": reverse(
-                    "courseware.views.render_xblock",
-                    kwargs={"usage_key_string": unicode(block.location)},
-                    request=request_info.request,
-                ),
-            }
+        return Response(
+            BlockSerializer(
+                blocks,
+                context={
+                    'request': request,
+                    'block_structure': blocks,
+                    'course_key': course_key,
+                    'fields': params.cleaned_data['fields'],
+                },
+                many=True,
+            ).data
+        )

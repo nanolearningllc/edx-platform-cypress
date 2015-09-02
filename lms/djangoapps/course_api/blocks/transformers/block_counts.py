@@ -35,6 +35,6 @@ class BlockCountsTransformer(BlockStructureTransformer):
                     block_type,
                     (
                         descendants_type_count +
-                        (1 if block_structure.get_xblock_field(block_key, 'type') else 0)
+                        (1 if (block_structure.get_xblock_field(block_key, 'type') == block_type) else 0)
                     )
                 )
