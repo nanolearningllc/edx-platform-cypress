@@ -584,9 +584,21 @@ class TeamsDetailView(ExpandableFieldViewMixin, RetrievePatchAPIView):
         """DELETE /api/team/v0/teams/{team_id}"""
         team = get_object_or_404(CourseTeam, team_id=team_id)
         self.check_object_permissions(request, team)
+        memberships = list(CourseTeamMembership.get_memberships(team_id=team_id))
         # Note: also deletes all team memberships associated with this team
         team.delete()
         log.info('user %d deleted team %s', request.user.id, team_id)
+        tracker.emit('edx.team.deleted', {
+            'team_id': team_id,
+            'course_id': unicode(team.course_id),
+        })
+        for member in memberships:
+            tracker.emit('edx.team.learner_removed', {
+                'team_id': team_id,
+                'course_id': unicode(team.course_id),
+                'remove_method': 'team_deleted',
+                'user_id': member.user_id
+            })
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

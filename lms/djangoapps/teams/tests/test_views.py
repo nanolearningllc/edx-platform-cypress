@@ -781,8 +781,11 @@ class TestDetailTeamAPI(TeamAPITestCase):
 
 
 @ddt.ddt
-class TestDeleteTeamAPI(TeamAPITestCase):
+class TestDeleteTeamAPI(EventTestMixin, TeamAPITestCase):
     """Test cases for the team delete endpoint."""
+
+    def setUp(self):  # pylint: disable=arguments-differ
+        super(TestDeleteTeamAPI, self).setUp('teams.views.tracker')
 
     @ddt.data(
         (None, 401),
@@ -796,6 +799,19 @@ class TestDeleteTeamAPI(TeamAPITestCase):
     @ddt.unpack
     def test_access(self, user, status):
         self.delete_team(self.solar_team.team_id, status, user=user)
+        if status == 204:
+            self.assert_event_emitted(
+                'edx.team.deleted',
+                team_id=self.solar_team.team_id,
+                course_id=unicode(self.test_course_1.id)
+            )
+            self.assert_event_emitted(
+                'edx.team.learner_removed',
+                team_id=self.solar_team.team_id,
+                course_id=unicode(self.test_course_1.id),
+                remove_method='team_deleted',
+                user_id=self.users['student_enrolled'].id
+            )
 
     def test_does_not_exist(self):
         self.delete_team('nonexistent', 404)
@@ -803,6 +819,18 @@ class TestDeleteTeamAPI(TeamAPITestCase):
     def test_memberships_deleted(self):
         self.assertEqual(CourseTeamMembership.objects.filter(team=self.solar_team).count(), 1)
         self.delete_team(self.solar_team.team_id, 204, user='staff')
+        self.assert_event_emitted(
+            'edx.team.deleted',
+            team_id=self.solar_team.team_id,
+            course_id=unicode(self.test_course_1.id)
+        )
+        self.assert_event_emitted(
+            'edx.team.learner_removed',
+            team_id=self.solar_team.team_id,
+            course_id=unicode(self.test_course_1.id),
+            remove_method='team_deleted',
+            user_id=self.users['student_enrolled'].id
+        )
         self.assertEqual(CourseTeamMembership.objects.filter(team=self.solar_team).count(), 0)
 
 
