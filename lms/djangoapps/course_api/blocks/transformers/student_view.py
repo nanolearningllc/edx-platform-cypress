@@ -17,6 +17,10 @@ class StudentViewTransformer(BlockStructureTransformer):
         """
         Collect student_view_multi_device and student_view_data values for each block
         """
+        # TODO
+        # File "/edx/app/edxapp/edx-platform/common/lib/xmodule/xmodule/x_module.py", line 1125, in _xmodule
+        #     raise UndefinedContext()
+
         for block_key in block_structure.topological_traversal():
             block = block_structure.get_xblock(block_key)
             block_structure.set_transformer_block_data(

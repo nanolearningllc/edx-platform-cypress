@@ -3,13 +3,25 @@ Course API Block Transformers
 """
 
 from student_view import StudentViewTransformer
+from block_counts import BlockCountsTransformer
+
+
+class SupportedFieldType(object):
+    def __init__(self, block_field_name, transformer=None, requested_field_name=None):
+        self.transformer = transformer
+        self.block_field_name = block_field_name
+        self.requested_field_name = requested_field_name or block_field_name
+
 
 SUPPORTED_FIELDS = (
-    (None, 'type'),
-    (None, 'display_name'),
-    (None, 'graded'),
-    (None, 'format'),
+    SupportedFieldType('category', None, 'type'),
+    SupportedFieldType('display_name'),
+    SupportedFieldType('graded'),
+    SupportedFieldType('format'),
 
-    (StudentViewTransformer, StudentViewTransformer.STUDENT_VIEW_DATA),
-    (StudentViewTransformer, StudentViewTransformer.STUDENT_VIEW_MULTI_DEVICE),
+    SupportedFieldType(StudentViewTransformer.STUDENT_VIEW_DATA, StudentViewTransformer),
+    SupportedFieldType(StudentViewTransformer.STUDENT_VIEW_MULTI_DEVICE, StudentViewTransformer),
+
+    # set the block_field_name to None so the entire data for the transformer is serialized
+    SupportedFieldType(None, BlockCountsTransformer, BlockCountsTransformer.BLOCK_COUNTS),
 )

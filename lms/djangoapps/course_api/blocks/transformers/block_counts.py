@@ -6,6 +6,7 @@ class BlockCountsTransformer(BlockStructureTransformer):
     ...
     """
     VERSION = 1
+    BLOCK_COUNTS = 'block_counts'
 
     def __init__(self, block_types_to_count):
         self.block_types_to_count = block_types_to_count
@@ -17,12 +18,15 @@ class BlockCountsTransformer(BlockStructureTransformer):
         transform method.
         """
         # collect basic xblock fields
-        block_structure.request_xblock_fields('type')
+        block_structure.request_xblock_fields('category')
 
     def transform(self, user_info, block_structure):
         """
         Mutates block_structure based on the given user_info.
         """
+        if not self.block_types_to_count:
+            return
+
         for block_key in block_structure.post_order_traversal():
             for block_type in self.block_types_to_count:
                 descendants_type_count = sum([
@@ -35,6 +39,6 @@ class BlockCountsTransformer(BlockStructureTransformer):
                     block_type,
                     (
                         descendants_type_count +
-                        (1 if (block_structure.get_xblock_field(block_key, 'type') == block_type) else 0)
+                        (1 if (block_structure.get_xblock_field(block_key, 'category') == block_type) else 0)
                     )
                 )

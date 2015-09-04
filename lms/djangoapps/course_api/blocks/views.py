@@ -3,11 +3,11 @@ from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 
 from lms.djangoapps.course_blocks.api import get_course_blocks, LMS_COURSE_TRANSFORMERS
-from opaque_keys.edx.keys import UsageKey
-from openedx.core.lib.api.view_utils import view_auth_classes
-from xmodule.modulestore.django import modulestore
+from openedx.core.lib.api.view_utils import view_auth_classes, DeveloperErrorViewMixin
 
 from transformers.blocks_api import BlocksAPITransformer
+from transformers.block_counts import BlockCountsTransformer
+from transformers.student_view import StudentViewTransformer
 from .forms import BlockListGetForm
 from .serializers import BlockSerializer
 
@@ -19,7 +19,7 @@ from .serializers import BlockSerializer
 # support hide_from_toc
 
 @view_auth_classes()
-class CourseBlocks(ListAPIView):
+class CourseBlocks(DeveloperErrorViewMixin, ListAPIView):
     """
     **Use Case**
 
@@ -115,23 +115,20 @@ class CourseBlocks(ListAPIView):
             request - Django request object
             course - course module object
         """
-        usage_key = UsageKey.from_string(usage_key_string)
-        usage_key = usage_key.replace(course_key=modulestore().fill_in_run(usage_key.course_key))
-        course_key = usage_key.course_key
-
-        params = BlockListGetForm(request.GET, initial={'request': request})
+        requested_params = request.GET.copy()
+        requested_params.update({'usage_key': usage_key_string})
+        params = BlockListGetForm(requested_params, initial={'request': request})
         if not params.is_valid():
             raise ValidationError(params.errors)
 
         blocks_api_transformer = BlocksAPITransformer(
-            params.cleaned_data['block_counts'],
-            params.cleaned_data['student_view_data']
+            params.cleaned_data.get(BlockCountsTransformer.BLOCK_COUNTS, []),
+            params.cleaned_data.get(StudentViewTransformer.STUDENT_VIEW_DATA, []),
         )
         blocks = get_course_blocks(
-            request.user,
-            course_key,
-            usage_key,
-            transformers=LMS_COURSE_TRANSFORMERS + blocks_api_transformer,
+            params.cleaned_data['user'],
+            params.cleaned_data['usage_key'],
+            transformers=LMS_COURSE_TRANSFORMERS | {blocks_api_transformer},
         )
 
         return Response(
@@ -140,8 +137,7 @@ class CourseBlocks(ListAPIView):
                 context={
                     'request': request,
                     'block_structure': blocks,
-                    'course_key': course_key,
-                    'fields': params.cleaned_data['fields'],
+                    'requested_fields': params.cleaned_data['requested_fields'],
                 },
                 many=True,
             ).data
