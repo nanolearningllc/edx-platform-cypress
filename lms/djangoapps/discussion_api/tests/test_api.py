@@ -2787,6 +2787,7 @@ class DeleteCommentTest(
         except Http404:
             self.assertTrue(expected_error)
 
+
 @ddt.ddt
 class RetrieveThreadTest(
         CommentsServiceMockMixin,
@@ -2910,4 +2911,3 @@ class RetrieveThreadTest(
         self.request.user = self.non_author_user
         self.assertEqual(get_thread(self.request, self.thread_id), expected_response_data)
         self.assertEqual(httpretty.last_request().method, "GET")
-

@@ -82,6 +82,7 @@ def get_editable_fields(cc_content, context):
 
     return ret
 
+
 def has_permission(cc_content, context):
     """
     Return True if the requester has access to the given content, False otherwise
