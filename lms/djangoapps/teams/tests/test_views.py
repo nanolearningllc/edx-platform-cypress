@@ -544,6 +544,7 @@ class TestListTeamsAPI(EventTestMixin, TeamAPITestCase):
             search_text=text_search,
             topic_id=None,
             number_of_results=len(expected_team_names)
+        )
 
     def test_delete_removed_from_search(self):
         team = CourseTeamFactory.create(
