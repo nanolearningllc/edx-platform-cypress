@@ -21,16 +21,19 @@
       border-radius: 3px;
       box-shadow: 0 0 1px $shadow;
 
+      // CASE: label - staff response
       &.staff {
         padding-top: 38px;
         border-color: #009fe2;
       }
 
+      // CASE: label - community TA response
       &.community-ta{
         padding-top: 38px;
         border-color: $forum-color-community-ta;
       }
 
+      // CASE: banner - staff response
       .staff-banner {
         position: absolute;
         top: 0;
@@ -47,6 +50,7 @@
         text-transform: uppercase;
       }
 
+      // CASE: banner - community TA response
       .community-ta-banner{
         position: absolute;
         top: 0;
@@ -63,26 +67,13 @@
         text-transform: uppercase;
       }
 
+      // STATE: loading - response list
       &.loading {
         height: 0;
         margin: 0;
         padding: 0;
         border: none;
         box-shadow: none;
-      }
-    }
-
-    .discussion-response {
-      @include box-sizing(border-box);
-      border-radius: 3px 3px 0 0;
-      padding: $baseline;
-      background-color: $white;
-
-      .response-body {
-        ol, ul { // Fix up the RTL-only _reset.scss, but only in specific places
-          @include padding-left($baseline*2);
-          @include padding-right(0);
-        }
       }
     }
     
@@ -119,6 +110,21 @@
       span.add-response-btn-text {
         @include padding-left($baseline/5);
       }
+    }
+  }
+}
+
+// UI: base - response element
+.container .discussion-body .responses .discussion-response {
+  @include box-sizing(border-box);
+  border-radius: 3px 3px 0 0;
+  padding: $baseline;
+  background-color: $white;
+
+  .response-body {
+    ol, ul { // Fix up the RTL-only _reset.scss, but only in specific places
+      @include padding-left($baseline*2);
+      @include padding-right(0);
     }
   }
 }
