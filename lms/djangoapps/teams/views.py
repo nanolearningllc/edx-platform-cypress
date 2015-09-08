@@ -1168,6 +1168,9 @@ class MembershipDetailView(ExpandableFieldViewMixin, GenericAPIView):
         team = self.get_team(team_id)
         if has_team_api_access(request.user, team.course_id, access_username=username):
             membership = self.get_membership(username, team)
+            removal_method = 'self_removal'
+            if 'admin' in request.QUERY_PARAMS:
+                removal_method = 'removed_by_admin'
             membership.delete()
             tracker.emit(
                 'edx.team.learner_removed',
@@ -1175,7 +1178,7 @@ class MembershipDetailView(ExpandableFieldViewMixin, GenericAPIView):
                     'team_id': team.team_id,
                     'course_id': unicode(team.course_id),
                     'user_id': membership.user.id,
-                    'remove_method': 'self_removal' if membership.user == request.user else 'removed_by_admin'
+                    'remove_method': removal_method
                 }
             )
             return Response(status=status.HTTP_204_NO_CONTENT)
