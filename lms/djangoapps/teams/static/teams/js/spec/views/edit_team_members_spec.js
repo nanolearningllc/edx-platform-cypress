@@ -90,7 +90,7 @@ define([
             verifyTeamMembersView(view);
 
             deleteTeamMemember(view, true);
-            AjaxHelpers.expectJsonRequest(requests, 'DELETE', '/api/team/v0/team_membership/av,frodo', null);
+            AjaxHelpers.expectJsonRequest(requests, 'DELETE', '/api/team/v0/team_membership/av,frodo?admin=true', null);
             AjaxHelpers.respondWithNoContent(requests);
             expect(view.teamEvents.trigger).toHaveBeenCalledWith(
                 'teams:update', {
@@ -112,7 +112,7 @@ define([
             verifyTeamMembersView(view);
 
             deleteTeamMemember(view, true);
-            AjaxHelpers.expectJsonRequest(requests, 'DELETE', '/api/team/v0/team_membership/av,frodo', null);
+            AjaxHelpers.expectJsonRequest(requests, 'DELETE', '/api/team/v0/team_membership/av,frodo?admin=true', null);
             AjaxHelpers.respondWithError(requests);
             expect(TeamUtils.showMessage).toHaveBeenCalledWith(
                 'An error occurred while removing the member from the team. Try again.',
