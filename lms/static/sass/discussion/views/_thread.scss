@@ -1,6 +1,8 @@
 // discussion - thread layout
 // ====================
 
+$post-author-image-size: calc(($baseline*2.5) + ($baseline/2); // image size  + margin
+
 // general thread layout
 body.discussion, .discussion-module {
 
@@ -10,9 +12,15 @@ body.discussion, .discussion-module {
     border-radius: 3px 3px 0 0;
     background-color: $white;
 
+    .wrapper-post-header {
+      padding-bottom: 0;
+      margin-bottom: ($baseline*0.75);
+    }
+
     .post-header-content {
       display: inline-block;
-      width: flex-grid(9,12);
+      width: calc(flex-grid(9,12) - $post-author-image-size);
+      // width: flex-grid(9,12);
     }
 
     .post-header-actions {
@@ -122,6 +130,78 @@ body.discussion, .discussion-module {
   border-bottom: 1px solid $white; // Prevent collapsing margins
   border-radius: 3px 3px 0 0;
   background-color: $white;
+}
+
+// TO-DO: review inline discussions to ensure removing .discussion-mobile between the two classes above is ok. 
+body.discussion .discussion-post {
+  @include clearfix();
+
+  // post author image
+  .post-author-image {
+    display: inline-block;
+    background-color: $gray-l4;
+    height: $post-author-image-size;
+    width: $post-author-image-size;
+    margin-right: ($baseline/2);
+    border-radius: 3px; 
+  }
+
+  // post header content
+  .post-header-content {
+
+    // post title
+    .post-title {
+      @extend %t-title4;
+      @extend %t-ultrastrong;
+      margin-bottom: ($baseline/4);
+      letter-spacing: 0;
+    }
+
+    // post details
+    .posted-details {
+      margin-top: ($baseline/5);
+      font-size: 12px;
+      color: $gray-l1;
+
+      .username {
+        @extend %t-copy-sub1;
+        @extend %t-strong;
+        display: inline;
+      }
+
+      .timeago, .top-post-status {
+        color: inherit;
+      }
+    }
+
+    // post labels
+  }
+
+  // post body
+  .post-body {
+    @extend %t-copy-sub1;
+    clear: both;
+  }
+
+  // post context
+  .post-context {
+    @extend %t-copy-sub2;
+    margin-top: $baseline;
+    color: $gray-d1;
+    padding: ($baseline*0.75);
+    background-color: $gray-l6;
+    border-radius: 3px;
+
+    // CASE: no courseware context or cohort visiblity rules
+    &:empty {
+      display: none;
+    }
+
+    // post visibility - cohorts
+    .group-visibility-label {
+      margin-top: ($baseline/4);
+    }
+  }
 }
 
 // answered questions - collapsed comment area
