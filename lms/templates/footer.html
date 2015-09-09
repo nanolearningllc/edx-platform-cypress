@@ -18,13 +18,14 @@
   >
     <div class="colophon">
       <nav class="nav-colophon" aria-label="${_('About')}">
-        <ol>
+        <a id="Help" href="https://nanolearning.zendesk.com" target="_blank">Help</a>
+        ##<ol>
             % for item_num, link in enumerate(footer['navigation_links'], start=1):
-            <li class="nav-colophon-0${item_num}">
-              <a id="${link['name']}" href="${link['url']}">${link['title']}</a>
-            </li>
+            ##<li class="nav-colophon-0${item_num}">
+            ##  <a id="${link['name']}" href="${link['url']}">${link['title']}</a>
+            ##</li>
             % endfor
-        </ol>
+        ##</ol>
       </nav>
 
       <div class="wrapper-logo">
@@ -48,9 +49,9 @@
       <nav class="nav-legal" aria-label="${_('Legal')}">
         <ul>
           % for item_num, link in enumerate(footer['legal_links'], start=1):
-            <li class="nav-legal-0${item_num}">
-              <a href="${link['url']}">${link['title']}</a>
-            </li>
+            ##<li class="nav-legal-0${item_num}">
+            ##  <a href="${link['url']}">${link['title']}</a>
+            ##</li>
           % endfor
         </ul>
       </nav>
