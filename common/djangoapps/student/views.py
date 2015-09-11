@@ -1402,9 +1402,9 @@ def _do_create_account(form):
 
     Note: this function is also used for creating test users.
     """
-  allowed_domains = settings.FEATURES.get('REGISTRATION_EMAIL_DOMAIN_WHITELIST')
-      if allowed_domains and post_vars['email'].split('@')[-1] not in allowed_domains:
-            if CourseEnrollmentAllowed.objects.filter(email=post_vars['email']):
+    allowed_domains = settings.FEATURES.get('REGISTRATION_EMAIL_DOMAIN_WHITELIST')
+    if allowed_domains and post_vars['email'].split('@')[-1] not in allowed_domains:
+        if CourseEnrollmentAllowed.objects.filter(email=post_vars['email']):
             # If the user was manually added by an instructor (to any course),
             # allow user to register anyway.
             pass
@@ -1413,11 +1413,6 @@ def _do_create_account(form):
                 'field': 'email',
                 'value': _("You are not allowed to register with '{email}'.").format(email=post_vars['email'])}
           return HttpResponse(json.dumps(js))
-          
-    if not form.is_valid():
-        raise ValidationError(form.errors)
-
-
 
           
     user = User(
